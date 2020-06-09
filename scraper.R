@@ -14,6 +14,7 @@ league_table_urls <- courses %>%
   str_remove_all(',') %>%
   str_replace_all(' ', '_') %>%
   str_replace_all('&', 'And') %>%
+  # Capitalise any letters following an underscore
   gsub('(?<=_)([a-z])', '\\U\\1\\E', ., perl = TRUE) %>%
   str_c(
     'https://www.thecompleteuniversityguide.co.uk/league-table-files/',
@@ -30,6 +31,7 @@ download_csv <- function(url) {
     # `Research Assessment`) but these are of little use anyway
     'Year' = col_integer(),
     'Rank' = col_integer(),
+    'Institution' = col_character(),
     'Entry Standards' = col_integer(),
     'Student Satisfaction' = col_double(),
     'Research Quality' = col_double(),
@@ -48,6 +50,7 @@ league_tables <- map_dfr(league_table_urls, download_csv, .id = 'Course')
 
 # Clean up dataframe
 league_tables$Course <- factor(league_tables$Course)
+league_tables$Institution <- factor(league_tables$institution)
 names(league_tables) <- names(league_tables) %>%
   str_replace_all(' ', '_') %>%
   tolower()
