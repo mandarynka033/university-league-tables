@@ -1,0 +1,44 @@
+# Few things
+# First thing, be nice to me, I'm a fragile little flower
+
+# Displaying multiple courses from multiple universities could probably be done, but I haven't done it 
+# because it would require more work, like when it comes to the legend and stuff
+
+# The titles look bad, but my aesthetic inspiration has run dry
+
+data <- readRDS("league_tables.rds")
+
+library(dplyr)
+library(ggplot2)
+library(scales)
+
+# Multiple courses, one uni
+plot_courses <- function(courses_names, uni_name){
+  sbst_df <- data[(data$course %in% courses_names) & (data$institution == uni_name),] %>% 
+    select(c(year, rank, institution, course))
+  
+  ggplot(sbst_df, aes(x = year, y = rank, color = course)) + geom_line(lwd=1) + theme_bw() + 
+    scale_y_continuous(trans = "reverse", breaks= pretty_breaks()) + 
+    labs(title = paste("Course Ranking for", uni_name), color="Courses", y = "University ranking", x=NULL) + 
+    scale_x_continuous(minor_breaks = seq(2008, 2021, 1))
+}
+
+# Example
+courses_names = c("Chemistry", "Sociology", "Politics")
+plot_courses(courses_names, "Warwick")
+
+# Multiple unis, one course
+plot_unis <- function(course_name, unis_names){
+  sbst_df <- data[(data$institution %in% unis_names) & (data$course == course_name),] %>%  
+  select(c(year, rank, institution, course)) 
+  
+  ggplot(sbst_df, aes(x = year, y = rank, color = institution)) + 
+    geom_line(lwd=1) + theme_bw() +
+    scale_y_continuous(trans = "reverse", breaks= pretty_breaks()) + 
+    labs(title = paste("Course Ranking for", course_name), color="Universities", y = "University ranking", x=NULL) + 
+    scale_x_continuous(minor_breaks = seq(2008, 2021, 1))
+}
+
+# Example
+unis_names = c("Warwick", "Durham", "Bristol")
+plot_unis("Sociology", unis_names)
